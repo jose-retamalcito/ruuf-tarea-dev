@@ -1,13 +1,40 @@
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import json
 
 
-def calculate_panels(panel_width: int, panel_height: int, 
-                    roof_width: int, roof_height: int) -> int:
-    
-    # Implementa acá tu solución
-    
-    return 0
+def determine_long_side(width: int, height: int) -> tuple[int, int]:
+    if (width >= height):
+        return width, height
+
+    return height, width
+
+
+def pack_panels_in_roof(panel_long_side: int, panel_short_side: int, roof_long_side: int, roof_short_side: int) -> int:
+    how_many_fit_long_side = roof_long_side // panel_long_side
+    how_many_fit_short_side = roof_short_side // panel_short_side
+
+    remaining_long = roof_long_side - how_many_fit_long_side * panel_long_side
+
+    if remaining_long < panel_short_side or roof_short_side < panel_long_side:
+        return how_many_fit_long_side * how_many_fit_short_side
+
+    remaining_space_panels = pack_panels_in_roof(panel_long_side, panel_short_side, roof_short_side, remaining_long)
+
+    total_panels = how_many_fit_long_side * how_many_fit_short_side + remaining_space_panels
+
+    return total_panels
+
+
+def calculate_panels(panel_width: int, panel_height: int, roof_width: int, roof_height: int) -> int:
+    panel_long_side, panel_short_side = determine_long_side(panel_width, panel_height)
+    roof_long_side, roof_short_side = determine_long_side(roof_width, roof_height)
+
+    long_long_panels = pack_panels_in_roof(panel_long_side, panel_short_side, roof_long_side, roof_short_side)
+    short_long_panels = pack_panels_in_roof(panel_long_side, panel_short_side, roof_short_side, roof_long_side)
+
+    max_panels_in_roof = max(long_long_panels, short_long_panels)
+
+    return max_panels_in_roof
 
 
 def run_tests() -> None:
